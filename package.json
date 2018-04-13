@@ -1,0 +1,12 @@
+{
+  "name": "grid_examples",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "browser-sync start --server --files '**/*.css, **/*.html, **/*.js, !node_modules/**/*' --directory --port 7777 --browser 'Firefox'"
+  },
+  "dependencies": {
+    "browser-sync": "^2.23.6"
+  }
+}
