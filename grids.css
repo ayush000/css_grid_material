@@ -1,0 +1,337 @@
+/*
+Credits: https://cssgrid.io/
+Basics: 5 mins
+Layout,inspector,implicit / explicit grids, tracks
+*/
+
+/* Properties: 15 mins
+Containers;
+gtc, gtr, gap, gta(with media queries), grid-auto-rows, cols,
+auto, fr (fixed -width sidebar example),repeat, 
+
+Item:
+width of one column affects all,
+grid-column:
+span, 1 / -1, span 2 / -1, -> Replace absolute position
+grid-auto-flow: dense (container),
+(optional) auto-fit, auto-fill, minmax -> Responsive grid using these
+
+Positioning:
+Container: justify-content, justify-items, align-content, align-items, place-*
+*-self (advantage over flexbox)
+
+order
+*/
+
+/* Use cases: 10 - 15 mins
+* Buttons on right (check flexbox vs grid)
+* Fixed sidebar, content takes the rest space
+* Pinterest style photo gallery
+* Align forms (bootstrap grids) */
+
+.container {
+  /* Convert element into grid and children to grid elements */
+  display: grid;
+
+  /* Render 3 columns, each 100px wide. Rows are automatically created depending
+   called as implicit grid */
+  grid-template-columns: 100px 100px 100px;
+
+
+  /* Render 4 columns, 2nd column takes remaining space */
+  grid-template-columns: 100px auto 100px 100px;
+
+  /* Ex: Fixed sidebar of 300px and  use the rest */
+  grid-template-columns: 300px auto;
+
+  /* 5 columns, each of 100px */
+  grid-template-columns: repeat(5, 100px);
+  /* 10 columns, each of 100px, 200px */
+  grid-template-columns: repeat(5, 100px, 200px);
+  grid-template-columns: repeat(5, 1fr, auto);
+  grid-template-columns: 100px repeat(5, 1fr, auto) 200px repeat(2 4fr);
+
+  /* Creates 3 rows respective heights
+  * If we don't specify grid-template-columns, there will be 1
+  column.
+  * If there are more elements, each row takes an implicit height (Implicit grid) */
+  grid-template-rows: 200px 100px 400px;
+
+  /* Columns & rows are collectively called tracks */
+
+  /* Space b/w each of grid el */
+  grid-gap: 20px;
+
+
+  /** Dev tools **/
+  /* Inspect el -> Layout ->
+  * Check all boxes
+  * color: black */
+
+  /** Explicit vs implicit tracks **/
+
+  /* Height of each implicit row */
+  grid-auto-rows: 400px;
+
+  /* width of consecutive implicit rows, doesn't work in FF yet */
+  grid-auto-rows: 400px 100px;
+
+  /* row / column value makes each implicit grid element either a row or column */
+  grid-auto-flow: column;
+
+  /** Sizing **/
+
+  /* We get horizontal (side) scroll because total width = 100% + 20px * 3 */
+  grid-gap: 20px;
+  grid-template-columns: 25% 25% 25% 25%;
+
+  /* fr = fraction of free space left, similar to flex-grow */
+  grid-template-columns: 1fr 2fr;
+
+  /* For auto, the whole column will take as much width as the longest content in a column */
+  grid-template-columns: auto 1fr;
+}
+
+.item1 {
+
+  /* Assigning width to one item resizes the whole column */
+  width: 200px;
+  /* Item 1 takes two columns and two rows in grid
+  * If num of columns exceeds available space, item1 moves to next row
+  * If num of columns exceeds total number of explicit columns, item1 creates
+  implicit grid moving putting elements in the newly generated space  */
+  grid-column: span 2;
+  
+  /* property above expands to  grid-column-start = span 2, grid-column-end = auto*/
+
+
+  /* It's a composition of two properties: grid-row-start and grid-row-end.
+  It tells to start at explicit track number 2 and end at track number 4 (visible
+  in FF dev tools). This won't work w/o specifying explicit grids */
+  grid-row: 2 / 4;
+  grid-column: 2 / span 2;
+  grid-row: span 2 / 5;
+
+  /* Start from 2nd track and go until last track of explicit grid */
+  grid-column: 2 / -1;
+  /* Start from 1st track and go until 2nd last track */
+  grid-column: 1 / -2;
+
+}
+
+.container {
+  /** auto-fit and auto-fill **/
+  
+  /* Gives us 5 columns, each 100px wide */
+  grid-template-columns: repeat(5, 150px);
+
+  /* Max num of children that can fit in the container width, each 150px,
+  * Children move to next line on resizing, if less space */
+  grid-template-columns: repeat(auto-fit, 150px);
+
+  /* Same behavior with auto-fill if content is more than total width */
+  grid-template-columns: repeat(auto-fill, 150px);
+
+  /* If number of don't fully span container width,
+  * auto-fill terminates explicit grid upto container end
+  * auto-fit terminates explicit grid upto content end */
+
+  /* minmax = define minimum and max width of each child, makes perfectly
+  responsive layout, replace media-query */
+
+  /* auto-fill: Each child takes width of content */
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  /* auto-fit: Each child takes available width of container */
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+
+  /* fit-content: replacement for auto. First column would take up all free space
+  but won't exceed 150px */
+  grid-template-columns: fit-content(150px) repeat(3, 100px);
+
+
+  /** Grid template areas **/
+
+  /* Create a 3 column grid */
+  grid-template-columns: 1fr 10fr 1fr;
+  grid-template-rows: 150px 150px 100px;
+
+  grid-template-areas:
+    "sidebar1 content sidebar2"
+    "sidebar1 content sidebar2"
+    "footer   footer  footer";
+}
+
+/* Media queries can be used to change layout */
+@media (max-width: 700px) {
+  .container {
+    grid-template-areas:
+      "content content content"
+      "sidebar1 sidebar1 sidebar2"
+      "footer   footer  footer";
+  }
+}
+
+.footer {
+  grid-area: footer;
+}
+
+.item1 {
+  grid-area: sidebar1;
+}
+
+.item2 {
+  grid-area: content;
+}
+
+.item3 {
+  grid-area: footer;
+}
+
+/* named lines come free with grid-area */
+
+.item1 {
+  /* Normal way */
+  grid-column: 1 /  2;
+  /* named line */
+  grid-column: sidebar1-start /  sidebar1-end;
+  grid-column: sidebar1-start /  content-end;
+}
+
+
+/** naming lines **/
+
+.container {
+  /* A line can have multiple names referring to the same line num */
+  grid-template-columns:
+    [sidebar-left site-left] 1fr
+    [content-start] 500px
+    [content-end] 1fr [site-right];
+  grid-template-rows: [content-top] repeat(10, auto) [content-bottom];
+}
+
+.item1 {
+  grid-column: content-start;
+  grid-row: content-top / content-bottom;
+}
+
+/* Arrangement in grid-template-areas can be changed in media query */
+
+
+/* grid-auto-flow: dense */
+/* row / column value makes each implicit grid element either a row or column
+(default: row) */
+.container {
+  grid-auto-flow: column;
+
+  /* Fill holes with items which can possibly fit */
+  grid-auto-flow: dense;
+
+  /** Grid alignment properties **/
+  /* justify-* are along row / x axis */
+  /* align-* are along column / y axis */
+
+
+  /* Default value, stretches item across the entire grid */
+  justify-items: stretch;
+  /* Center aligned, item is as wide as it needs to be */
+  justify-items: center;
+  /* Other possible values: start (same as flex-start), end (same as flex-end) */
+
+  /* same properties (start, end, center) for align-items, visible only when a
+  row is given some height  */
+  align-items: center;
+
+  /* To center align */
+  justify-items: center;
+  align-items: center;
+
+  /* or give both properties in one go. */
+  place-items: center center;
+  /* Cutting edge property, use autoprefixer */
+
+  /* justify-content, align-content are used to place grids (not items) in empty
+  space */
+  /* Possible values: center, start, end, space-between, space-around */
+  justify-content: center;
+  /* Works only with fixed height */
+  align-content: center;
+
+}
+
+.item1 {
+  /* Allows us to overwrite justify-items property */
+  /* Flexbox doesn't have justify-self */
+  justify-self: center;
+  align-content: center;
+}
+
+
+/** Reordering grid items with order property **/
+
+/* Each element has default order = 0. To change order, assign a number to each child. */
+
+.nav {
+  order: 1;
+}
+
+.logo {
+  order: 2;
+}
+
+.content {
+  order: 3;
+}
+
+/** Flexbox vs grid **/
+
+/* Grid can do everything flexbox can, and much more */
+
+/* One advantage of flexbox is: you can animate flex-grow, and other properties */
+/* In grid, you can't animate anything except grid-gap */
+/* Pros for grid:
+* More consistent across browsers
+* Can easily switch b/w 1D and 2D layout */
+
+/* Axis flipping */
+.content {
+  /* grid */
+
+  /* flex-direction: column */
+  /* To replicate this behaviour, create only one column */
+  grid-template-columns: 1fr;
+
+  /* flex-direction: row */
+  grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+
+  /* You can't do flex-direction: row-reverse / column-reverse */
+  /* Can be done with order property but very tedious to assign order property to each item */
+
+  
+  /* First item = left align, remaining items = right align */
+  grid-template-columns: 1fr;
+  /* First item will take the entire column, remaining items will move to next line (implicit) */
+
+  grid-auto-flow: column;
+  /* Implicit gridding will move to column */
+  
+}
+/* [a][b][c][d], b takes all free width */
+
+/* flex way */
+.container {
+  display: flex;
+}
+
+.b {
+  flex: 1;
+}
+
+/* grid way */
+.container {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  /* Flex is better here, because, if element [e] was added to the start, grid would mess up */
+  /* grid depends on order of items here */
+}
+
+/* Flex doesn't have justify-self */
